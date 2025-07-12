@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscrição - Feira da Tecnologia</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", "Poppins", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(-45deg, #1f1c2c, #928dab, #2b5876, #4e4376);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    form {
+      backdrop-filter: blur(15px);
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      animation: fadeInUp 1s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      color: #fff;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    label {
+      display: block;
+      color: #f1f1f1;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.4rem;
+      border-radius: 10px;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 1rem;
+      transition: 0.3s;
+      backdrop-filter: blur(5px);
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border: 2px solid #00e6e6;
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 1rem;
+      background: linear-gradient(90deg, #00f0ff, #00ffc6);
+      color: #000;
+      font-weight: bold;
+      font-size: 1rem;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.3s ease-in-out;
+      box-shadow: 0 0 10px #00ffe0, 0 0 40px #00ffe0;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffe0, 0 0 60px #00ffe0;
+    }
+
+    #mensagem {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    #loader {
+      display: none;
+      margin: 10px auto;
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid #00ffc3;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+
+    .confete {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 500px) {
+      form {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      input, select, button {
+        font-size: 1rem;
+      }
+    }
+
+    select option {
+      background-color: #fff;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="formInscricao">
+    <h1>Inscrição - Acelera Dom Pedro</h1>
+
+    <label for="nome">Nome Completo:
+      <input type="text" id="nome" required>
+    </label>
+
+    <label for="matricula">Turma:
+      <input type="text" id="matricula" required placeholder="">
+    </label>
+
+    <div id="loader"></div>
+    <p id="mensagem"></p>
+    <div id="confete" class="confete"></div>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, push, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDz5KVv9brf48P2UZA-Sv9-gHUao5NVnws",
+      authDomain: "acelera-478b7.firebaseapp.com",
+      databaseURL: "https://acelera-478b7-default-rtdb.firebaseio.com",
+      projectId: "acelera-478b7",
+      storageBucket: "acelera-478b7.appspot.com",
+      messagingSenderId: "857971216006",
+      appId: "1:857971216006:web:434944b1134a64b9658b07"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const form = document.getElementById('formInscricao');
+    const mensagem = document.getElementById('mensagem');
+    const loader = document.getElementById('loader');
+    const confete = document.querySelector('.confete');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = form.nome.value.trim();
+      const matricula = form.matricula.value.trim();
+      const setor = form.setor.value;
+
+      mensagem.textContent = "";
+      confete.textContent = "";
+      loader.style.display = "block";
+
+      if (!nome || !matricula || !setor) {
+        loader.style.display = "none";
+        mensagem.textContent = "Preencha todos os campos!";
+        mensagem.style.color = "red";
+        return;
+      }
+
+      try {
+        // Verifica se já existe inscrição para este setor
+        const inscricoesRef = ref(database, 'inscricao');
+        const q = query(inscricoesRef, orderByChild('setor'), equalTo(setor));
+        const snapshot = await get(q);
+
+        if (snapshot.exists()) {
+          loader.style.display = "none";
+          mensagem.textContent = `Já existe uma inscrição para o setor "${setor}".`;
+          mensagem.style.color = "red";
+          return;
+        }
+
+        // Se não existe, insere
+        await push(inscricoesRef, {
+          nome,
+          matricula,
+          setor,
+          data: new Date().toISOString()
+        });
+
+        loader.style.display = "none";
+        mensagem.textContent = "Inscrição realizada com sucesso!";
+        mensagem.style.color = "green";
+        confete.textContent = "🎉🎊";
+        form.reset();
+      } catch (error) {
+        loader.style.display = "none";
+        mensagem.textContent = "Erro ao salvar: " + error.message;
+        mensagem.style.color = "red";
+      }
+    });
+  </script>
+
+</body>
+</html>
