@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Inscritos - Turbo</title>
   <style>
+    /* Mantive todo seu CSS original */
     * {
       box-sizing: border-box;
       font-family: "Segoe UI", "Poppins", sans-serif;
@@ -126,7 +127,7 @@
       }
     }
 
-      select option {
+    select option {
       background-color: #fff;
       color: #000;
     }
@@ -139,7 +140,6 @@
 
     <div class="filtros">
       <input type="text" id="buscaNome" placeholder="Buscar por nome..." />
-     
       <button id="exportarCsv">Exportar CSV</button>
     </div>
 
@@ -149,37 +149,34 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDz5KVv9brf48P2UZA-Sv9-gHUao5NVnws",
-      authDomain: "acelera-478b7.firebaseapp.com",
-      databaseURL: "https://acelera-478b7-default-rtdb.firebaseio.com",
-      projectId: "acelera-478b7",
-      storageBucket: "acelera-478b7.appspot.com",
-      messagingSenderId: "857971216006",
-      appId: "1:857971216006:web:434944b1134a64b9658b07"
+      apiKey: "AIzaSyDMq-uVtvAhSmsZMBNpHtQevEO-utaxF9M",
+      authDomain: "feira-tecnologia.firebaseapp.com",
+      databaseURL: "https://feira-tecnologia-default-rtdb.firebaseio.com",
+      projectId: "feira-tecnologia",
+      storageBucket: "feira-tecnologia.firebasestorage.app",
+      messagingSenderId: "683029893586",
+      appId: "1:683029893586:web:c3b99d0212cf501f98380b"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
     const lista = document.getElementById("listaInscritos");
     const buscaNome = document.getElementById("buscaNome");
-    const filtroSetor = document.getElementById("filtroSetor");
     const btnExportar = document.getElementById("exportarCsv");
 
     let inscritos = [];
 
     const renderizar = () => {
       const nomeFiltro = buscaNome.value.toLowerCase();
-      const setorFiltro = filtroSetor.value;
 
-      const filtrados = inscritos.filter((inscrito) => {
-        const nomeMatch = inscrito.nome.toLowerCase().includes(nomeFiltro);
-        const setorMatch = setorFiltro === "" || inscrito.setor === setorFiltro;
-        return nomeMatch && setorMatch;
-      });
+      const filtrados = inscritos.filter((inscrito) =>
+        inscrito.nome.toLowerCase().includes(nomeFiltro)
+      );
 
       lista.innerHTML = "";
 
@@ -193,8 +190,7 @@
         item.className = "inscrito";
         item.innerHTML = `
           <p><strong>Nome:</strong> ${i.nome}</p>
-          <p><strong>Matrícula:</strong> ${i.matricula || '---'}</p>
-          <p><strong>Setor:</strong> ${i.setor}</p>
+          <p><strong>Turma:</strong> ${i.turma || '---'}</p>
           <p><strong>Data:</strong> ${new Date(i.data).toLocaleString("pt-BR")}</p>
         `;
         lista.appendChild(item);
@@ -202,12 +198,11 @@
     };
 
     const exportarCSV = () => {
-      const headers = ["Nome", "Matrícula", "Setor", "Data"];
+      const headers = ["Nome", "Turma", "Data"];
       const linhas = inscritos.map(i => [
         `"${i.nome}"`,
-        `"${i.matricula || ''}"`,
-        `"${i.setor}"`,
-        `"${new Date(i.data).toLocaleString("pt-BR")}"`
+        `"${i.turma || ''}"`,
+        `"${new Date(i.data).toLocaleString("pt-BR")}"`,
       ]);
       const csvContent = [headers, ...linhas].map(e => e.join(",")).join("\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -220,10 +215,9 @@
     };
 
     buscaNome.addEventListener("input", renderizar);
-    filtroSetor.addEventListener("change", renderizar);
     btnExportar.addEventListener("click", exportarCSV);
 
-    const inscritosRef = ref(db, "inscricao");
+    const inscritosRef = ref(db, "inscricoes");
 
     onValue(inscritosRef, (snapshot) => {
       if (!snapshot.exists()) {
