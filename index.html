@@ -163,14 +163,14 @@
 <body>
 
   <form id="formInscricao">
-    <h1>Inscrição - Acelera Dom Pedro</h1>
+    <h1>Inscrição - Feira da Tecnologia</h1>
 
     <label for="nome">Nome Completo:
       <input type="text" id="nome" required>
     </label>
 
-    <label for="matricula">Turma:
-      <input type="text" id="matricula" required placeholder="">
+    <label for="turma">Turma:
+      <input type="text" id="turma" required placeholder="">
     </label>
 
     <div id="loader"></div>
@@ -181,17 +181,17 @@
   </form>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, push, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDz5KVv9brf48P2UZA-Sv9-gHUao5NVnws",
-      authDomain: "acelera-478b7.firebaseapp.com",
-      databaseURL: "https://acelera-478b7-default-rtdb.firebaseio.com",
-      projectId: "acelera-478b7",
-      storageBucket: "acelera-478b7.appspot.com",
-      messagingSenderId: "857971216006",
-      appId: "1:857971216006:web:434944b1134a64b9658b07"
+      apiKey: "AIzaSyDMq-uVtvAhSmsZMBNpHtQevEO-utaxF9M",
+      authDomain: "feira-tecnologia.firebaseapp.com",
+      databaseURL: "https://feira-tecnologia-default-rtdb.firebaseio.com",
+      projectId: "feira-tecnologia",
+      storageBucket: "feira-tecnologia.firebasestorage.app",
+      messagingSenderId: "683029893586",
+      appId: "1:683029893586:web:c3b99d0212cf501f98380b"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -206,14 +206,13 @@
       e.preventDefault();
 
       const nome = form.nome.value.trim();
-      const matricula = form.matricula.value.trim();
-      const setor = form.setor.value;
+      const turma = form.turma.value.trim();
 
       mensagem.textContent = "";
       confete.textContent = "";
       loader.style.display = "block";
 
-      if (!nome || !matricula || !setor) {
+      if (!nome || !turma) {
         loader.style.display = "none";
         mensagem.textContent = "Preencha todos os campos!";
         mensagem.style.color = "red";
@@ -221,23 +220,10 @@
       }
 
       try {
-        // Verifica se já existe inscrição para este setor
-        const inscricoesRef = ref(database, 'inscricao');
-        const q = query(inscricoesRef, orderByChild('setor'), equalTo(setor));
-        const snapshot = await get(q);
-
-        if (snapshot.exists()) {
-          loader.style.display = "none";
-          mensagem.textContent = `Já existe uma inscrição para o setor "${setor}".`;
-          mensagem.style.color = "red";
-          return;
-        }
-
-        // Se não existe, insere
+        const inscricoesRef = ref(database, 'inscricoes');
         await push(inscricoesRef, {
           nome,
-          matricula,
-          setor,
+          turma,
           data: new Date().toISOString()
         });
 
